@@ -62,9 +62,9 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
             XModuleResources res = XModuleResources.createInstance(resources, null);
             resParam.res.setReplacement(ui, "drawable", "qs_tile_background_shape",
                     res.fwd(R.drawable.qs_tile_background_shape));
-            /*resParam.res.setReplacement(ui, "drawable", "qs_media_seamless_background",
-                    res.fwd(R.drawable.qs_media_seamless_background));
-            resParam.res.setReplacement(ui, "drawable", "qs_media_solid_button",
+            resParam.res.setReplacement(ui, "drawable", "qs_media_outline_layout_bg",
+                    res.fwd(R.drawable.qs_media_outline_layout_bg));
+            /*resParam.res.setReplacement(ui, "drawable", "qs_media_solid_button",
                     res.fwd(R.drawable.qs_media_solid_button));*/
             /*resParam.res.setReplacement(ui, "dimen", "qs_media_album_radius",
                     new XResources.DimensionReplacement(4.0f, TypedValue.COMPLEX_UNIT_DIP));*/
