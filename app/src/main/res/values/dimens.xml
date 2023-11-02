@@ -1,3 +1,10 @@
 <resources>
-    <dimen name="bottomDialogCornerRadius" />
+    <dimen name="bottomDialogCornerRadius">4dp</dimen>
+    <dimen name="dialogCornerRadius">2dp</dimen>
+
+    <!-- Android 11 uses a mask for QS tiles, Android 12+ doesn't -->
+    <dimen name="qs_corner_radius">6dp</dimen>
+
+    <!-- See SystemUI dimens documentation for slider values -->
+    <dimen name="rounded_slider_background_rounded_corner">10dp</dimen>
 </resources>
