@@ -5,10 +5,13 @@ import android.content.res.XResources;
 import android.util.TypedValue;
 
 import de.robv.android.xposed.IXposedHookInitPackageResources;
+import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.callbacks.XC_InitPackageResources;
+import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
-public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteInit {
+public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteInit, IXposedHookLoadPackage {
+    Boolean authentic = true;
     String system = "android";
     String ui = "com.android.systemui";
     String resources;
@@ -26,22 +29,43 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
             XModuleResources res = XModuleResources.createInstance(resources, null);
             XResources.setSystemWideReplacement(system, "drawable", "notification_icon_circle",
                     res.fwd(R.drawable.notification_icon_circle));
-            XResources.setSystemWideReplacement(system, "drawable", "conversation_badge_background",
-                    res.fwd(R.drawable.conversation_badge_background));
-            XResources.setSystemWideReplacement(system, "drawable", "conversation_badge_ring",
-                    res.fwd(R.drawable.conversation_badge_ring));
+
+            if (!authentic) {
+                XResources.setSystemWideReplacement(system, "drawable", "conversation_badge_background",
+                        res.fwd(R.drawable.conversation_badge_background));
+                XResources.setSystemWideReplacement(system, "drawable", "conversation_badge_ring",
+                        res.fwd(R.drawable.conversation_badge_ring));
+            }
 
         } else if (resParam.packageName.equals(ui)) {
             resParam.res.setReplacement(ui, "dimen", "global_actions_corner_radius",
                     new XResources.DimensionReplacement(4.0f, TypedValue.COMPLEX_UNIT_DIP));
+            resParam.res.setReplacement(ui, "dimen", "rounded_slider_corner_radius",
+                    new XResources.DimensionReplacement(4.0f, TypedValue.COMPLEX_UNIT_DIP));
+            resParam.res.setReplacement(ui, "dimen", "rounded_slider_track_inset",
+                    new XResources.DimensionReplacement(2.0f, TypedValue.COMPLEX_UNIT_DIP));
+            resParam.res.setReplacement(ui, "dimen", "rounded_slider_background_rounded_corner",
+                    new XResources.DimensionReplacement(10.0f, TypedValue.COMPLEX_UNIT_DIP));
+            resParam.res.setReplacement(ui, "dimen", "qs_security_footer_corner_radius",
+                    new XResources.DimensionReplacement(4.0f, TypedValue.COMPLEX_UNIT_DIP));
             resParam.res.setReplacement(ui, "dimen", "qs_corner_radius",
+                    new XResources.DimensionReplacement(6.0f, TypedValue.COMPLEX_UNIT_DIP));
+            resParam.res.setReplacement(ui, "dimen", "qs_media_album_radius",
                     new XResources.DimensionReplacement(4.0f, TypedValue.COMPLEX_UNIT_DIP));
             resParam.res.setReplacement(ui, "dimen", "notification_corner_radius",
                     new XResources.DimensionReplacement(4.0f, TypedValue.COMPLEX_UNIT_DIP));
             resParam.res.setReplacement(ui, "dimen", "notification_corner_radius_small",
                     new XResources.DimensionReplacement(2.0f, TypedValue.COMPLEX_UNIT_DIP));
             resParam.res.setReplacement(ui, "dimen", "notification_scrim_corner_radius",
-                    new XResources.DimensionReplacement(4.57f, TypedValue.COMPLEX_UNIT_DIP));
+                    new XResources.DimensionReplacement((32.0f/28.0f)*4.0f, TypedValue.COMPLEX_UNIT_DIP));
+
+            XModuleResources res = XModuleResources.createInstance(resources, null);
+            resParam.res.setReplacement(ui, "drawable", "qs_tile_background_shape",
+                    res.fwd(R.drawable.qs_tile_background_shape));
+            /*resParam.res.setReplacement(ui, "drawable", "qs_media_seamless_background",
+                    res.fwd(R.drawable.qs_media_seamless_background));
+            resParam.res.setReplacement(ui, "drawable", "qs_media_solid_button",
+                    res.fwd(R.drawable.qs_media_solid_button));*/
             /*resParam.res.setReplacement(ui, "dimen", "qs_media_album_radius",
                     new XResources.DimensionReplacement(4.0f, TypedValue.COMPLEX_UNIT_DIP));*/
             //<dimen name="qs_media_album_radius">14dp</dimen>
@@ -52,5 +76,54 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
     @Override
     public void initZygote(StartupParam startupParam) throws Throwable {
         resources = startupParam.modulePath;
+    }
+
+    String setLib = "com.android.settingslib";
+
+    @Override
+    public void handleLoadPackage(XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
+        if (loadPackageParam.packageName.equals(setLib) || loadPackageParam.packageName.equals(ui)) {
+            /*findAndHookMethod(setLib + ".notification.ConversationIconFactory.ConversationIconDrawable",
+                    loadPackageParam.classLoader,
+                    "draw",
+                    Canvas.class, new XC_MethodHook() {
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            super.beforeHookedMethod(param);
+                            setObjectField(param.thisObject, "CENTER_RADIUS", 5.0f);
+                        /*Drawable badgeIcon = (Drawable) getObjectField(param.thisObject, "mBadgeIcon");
+                        int pos = (int) getIntField(param.thisObject, "badgeCenter");
+                        Paint paint = (Paint) getObjectField(param.thisObject, "mPaddingPaint");
+                        //int rad = (int) getIntField(param.thisObject, "radius");
+                        if (badgeIcon != null) {
+                            Canvas canvas = (Canvas) param.args[0];
+                            canvas.drawRoundRect(0, 0, pos*2, pos*2, 2.0f, 2.0f, paint);
+                        }*
+                        }
+
+                        //@Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            super.afterHookedMethod(param);
+                            Drawable badgeIcon = (Drawable) getObjectField(param.thisObject, "mBadgeIcon");
+                            int pos = (int) getIntField(param.thisObject, "badgeCenter");
+                            Paint paint = (Paint) getObjectField(param.thisObject, "mPaddingPaint");
+                            //int rad = (int) getIntField(param.thisObject, "radius");
+                            if (badgeIcon != null) {
+                                Canvas canvas = (Canvas) param.args[0];
+                                canvas.drawRoundRect(0, 0, pos*2, pos*2, 2.0f, 2.0f, paint);
+                            }
+                        }
+                    });*/
+        } else if (loadPackageParam.packageName.equals(system)) {
+            /*findAndHookMethod("com.android.internal.widget.ConversationLayout",
+                    loadPackageParam.classLoader,
+                    "onFinishInflate",
+                    new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            Thread.dumpStack();
+                        }
+                    });*/
+        }
     }
 }
