@@ -7,4 +7,13 @@
 
     <!-- See SystemUI dimens documentation for slider values -->
     <dimen name="rounded_slider_background_rounded_corner">10dp</dimen>
+
+    <!-- notification_large_icon_width (64dp) - @id/icon margin (12dp) -->
+    <dimen name="notification_icon_circle_size">52dp</dimen>
+    <!-- notification_large_icon_height (64dp) -->
+    <dimen name="notification_headerless_min_height">64dp</dimen>
+    <!-- @id/icon margin (12dp) -->
+    <dimen name="notification_icon_circle_start">12dp</dimen>
+    <!-- notification_large_icon_circle_padding -->
+    <dimen name="notification_icon_circle_padding">11dp</dimen>
 </resources>

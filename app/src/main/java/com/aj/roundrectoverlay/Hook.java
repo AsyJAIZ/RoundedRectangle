@@ -12,6 +12,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteInit, IXposedHookLoadPackage {
     Boolean authentic = true;
+    Boolean material1 = true;
     String system = "android";
     String ui = "com.android.systemui";
     String resources;
@@ -25,16 +26,39 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
             XResources.setSystemWideReplacement(system, "dimen", "config_dialogCornerRadius",
                     res.fwd(R.dimen.dialogCornerRadius));
             XResources.setSystemWideReplacement(system, "string", "config_icon_mask",
-                    "M50,0L88,0 C94.4,0 100,5.4 100 12 L100,88 C100,94.6 94.6 100 88 100 L12,100 C5.4,100 0,94.6 0,88 L0 12 C0 5.4 5.4 0 12 0 L50,0 Z");
+                    res.fwd(R.string.config_icon_mask));
 
-            XResources.setSystemWideReplacement(system, "drawable", "notification_icon_circle",
-                    res.fwd(R.drawable.notification_icon_circle));
+            if (material1) {
+                // TODO: change text size
+                XResources.setSystemWideReplacement(system, "dimen", "notification_headerless_min_height",
+                        res.fwd(R.dimen.notification_headerless_min_height));
 
-            if (!authentic) {
-                XResources.setSystemWideReplacement(system, "drawable", "conversation_badge_background",
-                        res.fwd(R.drawable.conversation_badge_background));
-                XResources.setSystemWideReplacement(system, "drawable", "conversation_badge_ring",
-                        res.fwd(R.drawable.conversation_badge_ring));
+                // alternate_expand_target
+                XResources.setSystemWideReplacement(system, "dimen", "notification_content_margin_start",
+                        res.fwd(R.dimen.notification_headerless_min_height));
+
+                XResources.setSystemWideReplacement(system, "dimen", "notification_icon_circle_start",
+                        res.fwd(R.dimen.notification_icon_circle_start));
+                XResources.setSystemWideReplacement(system, "dimen", "notification_icon_circle_padding",
+                        res.fwd(R.dimen.notification_icon_circle_padding));
+                XResources.setSystemWideReplacement(system, "dimen", "notification_icon_circle_size",
+                        res.fwd(R.dimen.notification_icon_circle_size));
+
+                if (!authentic)
+                    XResources.setSystemWideReplacement(system, "drawable", "notification_icon_circle",
+                        res.fwd(R.drawable.notification_icon_circle_m));
+
+                // XResources.hookSystemWideLayout();
+            } else {
+                if (!authentic) {
+                    XResources.setSystemWideReplacement(system, "drawable", "conversation_badge_background",
+                            res.fwd(R.drawable.conversation_badge_background));
+                    XResources.setSystemWideReplacement(system, "drawable", "conversation_badge_ring",
+                            res.fwd(R.drawable.conversation_badge_ring));
+                }
+
+                XResources.setSystemWideReplacement(system, "drawable", "notification_icon_circle",
+                        res.fwd(R.drawable.notification_icon_circle));
             }
 
         } else if (resParam.packageName.equals(ui)) {
