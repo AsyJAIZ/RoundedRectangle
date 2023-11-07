@@ -3,15 +3,19 @@ package com.aj.roundrectoverlay;
 import android.content.res.XModuleResources;
 import android.content.res.XResources;
 import android.util.TypedValue;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 import de.robv.android.xposed.IXposedHookInitPackageResources;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.callbacks.XC_InitPackageResources;
+import de.robv.android.xposed.callbacks.XC_LayoutInflated;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteInit, IXposedHookLoadPackage {
-    Boolean authentic = true;
+    Boolean authentic = false;
     Boolean material1 = true;
     String system = "android";
     String ui = "com.android.systemui";
@@ -32,6 +36,8 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
                 // TODO: change text size
                 XResources.setSystemWideReplacement(system, "dimen", "notification_headerless_min_height",
                         res.fwd(R.dimen.notification_headerless_min_height));
+                XResources.setSystemWideReplacement(system, "dimen", "notification_header_height",
+                        res.fwd(R.dimen.notification_headerless_min_height));
 
                 // alternate_expand_target
                 XResources.setSystemWideReplacement(system, "dimen", "notification_content_margin_start",
@@ -48,7 +54,22 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
                     XResources.setSystemWideReplacement(system, "drawable", "notification_icon_circle",
                         res.fwd(R.drawable.notification_icon_circle_m));
 
-                // XResources.hookSystemWideLayout();
+                /*XC_LayoutInflated basic = new XC_LayoutInflated() {
+                    @Override
+                    public void handleLayoutInflated(LayoutInflatedParam layoutInflatedParam) throws Throwable {
+                        View view = layoutInflatedParam.view.findViewById(layoutInflatedParam.res.getIdentifier("icon", "id", system));
+                        FrameLayout.LayoutParams p = new FrameLayout.LayoutParams(view.getLayoutParams());
+                        int dp = (int) TypedValue.applyDimension(
+                                TypedValue.COMPLEX_UNIT_DIP,
+                                12.0f,
+                                layoutInflatedParam.res.getDisplayMetrics()
+                        );
+                        p.setMargins(dp,dp,dp,dp);
+                        view.setLayoutParams(p);
+                    }
+                };
+
+                XResources.hookSystemWideLayout(system, "layout", "notification_template_material_base", basic);*/
             } else {
                 if (!authentic) {
                     XResources.setSystemWideReplacement(system, "drawable", "conversation_badge_background",
@@ -60,7 +81,6 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
                 XResources.setSystemWideReplacement(system, "drawable", "notification_icon_circle",
                         res.fwd(R.drawable.notification_icon_circle));
             }
-
         } else if (resParam.packageName.equals(ui)) {
             resParam.res.setReplacement(ui, "dimen", "global_actions_corner_radius",
                     res.fwd(R.dimen.bottomDialogCornerRadius));
@@ -83,6 +103,9 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
             resParam.res.setReplacement(ui, "dimen", "notification_scrim_corner_radius",
                     new XResources.DimensionReplacement((32.0f/28.0f)*4.0f, TypedValue.COMPLEX_UNIT_DIP));
 
+
+            XResources.setSystemWideReplacement(ui, "drawable", "notif_footer_btn_background",
+                    res.fwd(R.drawable.notif_footer_btn_background));
             /*resParam.res.setReplacement(ui, "drawable", "qs_tile_background_shape",
                     res.fwd(R.drawable.qs_tile_background_shape));
             resParam.res.setReplacement(ui, "drawable", "qs_media_outline_layout_bg",
