@@ -16,7 +16,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteInit, IXposedHookLoadPackage {
     Boolean authentic = false;
-    Boolean material1 = true;
+    Boolean material1 = false;
     String system = "android";
     String ui = "com.android.systemui";
     String resources;
@@ -43,6 +43,7 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
                 XResources.setSystemWideReplacement(system, "dimen", "notification_content_margin_start",
                         res.fwd(R.dimen.notification_headerless_min_height));
 
+                // TODO: right icon, conversation icon
                 XResources.setSystemWideReplacement(system, "dimen", "notification_icon_circle_start",
                         res.fwd(R.dimen.notification_icon_circle_start));
                 XResources.setSystemWideReplacement(system, "dimen", "notification_icon_circle_padding",
@@ -53,6 +54,10 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
                 if (!authentic)
                     XResources.setSystemWideReplacement(system, "drawable", "notification_icon_circle",
                         res.fwd(R.drawable.notification_icon_circle_m));
+
+                // TODO: action icons, dividers, info
+                XResources.setSystemWideReplacement(system, "dimen", "notification_actions_padding_start",
+                        res.fwd(R.dimen.notification_actions_padding_start));
 
                 /*XC_LayoutInflated basic = new XC_LayoutInflated() {
                     @Override
@@ -84,28 +89,42 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
         } else if (resParam.packageName.equals(ui)) {
             resParam.res.setReplacement(ui, "dimen", "global_actions_corner_radius",
                     res.fwd(R.dimen.bottomDialogCornerRadius));
+
+            // Brightness slider
             resParam.res.setReplacement(ui, "dimen", "rounded_slider_corner_radius",
                     res.fwd(R.dimen.bottomDialogCornerRadius));
             resParam.res.setReplacement(ui, "dimen", "rounded_slider_track_inset",
                     res.fwd(R.dimen.dialogCornerRadius));
             resParam.res.setReplacement(ui, "dimen", "rounded_slider_background_rounded_corner",
                     res.fwd(R.dimen.rounded_slider_background_rounded_corner));
-            /*resParam.res.setReplacement(ui, "dimen", "qs_security_footer_corner_radius",
-                    new XResources.DimensionReplacement(4.0f, TypedValue.COMPLEX_UNIT_DIP));*/
+
+            // QQS and Media controls
             resParam.res.setReplacement(ui, "dimen", "qs_corner_radius",
                     res.fwd(R.dimen.qs_corner_radius));
             resParam.res.setReplacement(ui, "dimen", "qs_media_album_radius",
                     res.fwd(R.dimen.bottomDialogCornerRadius));
+
+            // Notifications
             resParam.res.setReplacement(ui, "dimen", "notification_corner_radius",
                     res.fwd(R.dimen.bottomDialogCornerRadius));
             resParam.res.setReplacement(ui, "dimen", "notification_corner_radius_small",
                     res.fwd(R.dimen.dialogCornerRadius));
             resParam.res.setReplacement(ui, "dimen", "notification_scrim_corner_radius",
                     new XResources.DimensionReplacement((32.0f/28.0f)*4.0f, TypedValue.COMPLEX_UNIT_DIP));
-
-
-            XResources.setSystemWideReplacement(ui, "drawable", "notif_footer_btn_background",
+            if (material1)
+                resParam.res.setReplacement(ui, "dimen", "notification_children_container_margin_top",
+                        res.fwd(R.dimen.notification_children_container_margin_top));
+            resParam.res.setReplacement(ui, "drawable", "notif_footer_btn_background",
                     res.fwd(R.drawable.notif_footer_btn_background));
+
+            // Volume slider
+            resParam.res.setReplacement(ui, "dimen", "volume_dialog_slider_corner_radius",
+                    res.fwd(R.dimen.bottomDialogCornerRadius));
+            resParam.res.setReplacement(ui, "dimen", "volume_dialog_panel_width_half",
+                    res.fwd(R.dimen.bottomDialogCornerRadius));
+            resParam.res.setReplacement(ui, "dimen", "volume_ringer_drawer_item_size_half",
+                    res.fwd(R.dimen.bottomDialogCornerRadius));
+
             /*resParam.res.setReplacement(ui, "drawable", "qs_tile_background_shape",
                     res.fwd(R.drawable.qs_tile_background_shape));
             resParam.res.setReplacement(ui, "drawable", "qs_media_outline_layout_bg",

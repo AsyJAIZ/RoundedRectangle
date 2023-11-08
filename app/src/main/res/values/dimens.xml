@@ -16,4 +16,10 @@
     <dimen name="notification_icon_circle_start">12dp</dimen>
     <!-- notification_large_icon_circle_padding -->
     <dimen name="notification_icon_circle_padding">11dp</dimen>
+
+    <!-- notification_large_icon (64dp) - (notification_headerless_min_height (56dp) - notification_children_container_margin_top (48dp)) -->
+    <dimen name="notification_children_container_margin_top">56dp</dimen>
+
+    <!-- notification_large_icon (64dp) - notification_material_action margin (4dp * 4) -->
+    <dimen name="notification_actions_padding_start">48dp</dimen>
 </resources>
