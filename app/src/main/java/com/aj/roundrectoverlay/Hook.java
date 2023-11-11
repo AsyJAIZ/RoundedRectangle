@@ -1,5 +1,7 @@
 package com.aj.roundrectoverlay;
 
+import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
+
 import android.content.res.XModuleResources;
 import android.content.res.XResources;
 import android.util.TypedValue;
@@ -10,6 +12,7 @@ import android.widget.FrameLayout;
 import de.robv.android.xposed.IXposedHookInitPackageResources;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.IXposedHookZygoteInit;
+import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_InitPackageResources;
 import de.robv.android.xposed.callbacks.XC_LayoutInflated;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
@@ -58,23 +61,6 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
                 // TODO: action icons, dividers, info
                 XResources.setSystemWideReplacement(system, "dimen", "notification_actions_padding_start",
                         res.fwd(R.dimen.notification_actions_padding_start));
-
-                /*XC_LayoutInflated basic = new XC_LayoutInflated() {
-                    @Override
-                    public void handleLayoutInflated(LayoutInflatedParam layoutInflatedParam) throws Throwable {
-                        View view = layoutInflatedParam.view.findViewById(layoutInflatedParam.res.getIdentifier("icon", "id", system));
-                        FrameLayout.LayoutParams p = new FrameLayout.LayoutParams(view.getLayoutParams());
-                        int dp = (int) TypedValue.applyDimension(
-                                TypedValue.COMPLEX_UNIT_DIP,
-                                12.0f,
-                                layoutInflatedParam.res.getDisplayMetrics()
-                        );
-                        p.setMargins(dp,dp,dp,dp);
-                        view.setLayoutParams(p);
-                    }
-                };
-
-                XResources.hookSystemWideLayout(system, "layout", "notification_template_material_base", basic);*/
             } else {
                 if (!authentic) {
                     XResources.setSystemWideReplacement(system, "drawable", "conversation_badge_background",
@@ -125,17 +111,18 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
             resParam.res.setReplacement(ui, "dimen", "volume_ringer_drawer_item_size_half",
                     res.fwd(R.dimen.bottomDialogCornerRadius));
 
-            /*resParam.res.setReplacement(ui, "drawable", "qs_tile_background_shape",
-                    res.fwd(R.drawable.qs_tile_background_shape));
-            resParam.res.setReplacement(ui, "drawable", "qs_media_outline_layout_bg",
-                    res.fwd(R.drawable.qs_media_outline_layout_bg));
-            resParam.res.setReplacement(ui, "drawable", "qs_media_solid_button",
-                    res.fwd(R.drawable.qs_media_solid_button));*/
-            /*resParam.res.setReplacement(ui, "dimen", "qs_media_album_radius",
-                    new XResources.DimensionReplacement(4.0f, TypedValue.COMPLEX_UNIT_DIP));*/
-            //<dimen name="qs_media_album_radius">14dp</dimen>
-        }
+            // Keyguard
+            resParam.res.setReplacement(ui, "dimen", "keyguard_affordance_fixed_radius",
+                    res.fwd(R.dimen.bottomDialogCornerRadius));
 
+        } else if ((resParam.packageName.equals("com.android.launcher3")) ||
+                (resParam.packageName.equals("com.google.android.apps.nexuslauncher"))) {
+            resParam.res.setReplacement(resParam.packageName, "dimen", "default_dialog_corner_radius",
+                    res.fwd(R.dimen.bottomDialogCornerRadius));
+
+            resParam.res.setReplacement(resParam.packageName, "dimen", "task_corner_radius_override",
+                    res.fwd(R.dimen.dialogCornerRadius));
+        }
     }
 
     @Override
@@ -180,7 +167,7 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
                         }
                     });*/
         } else if (loadPackageParam.packageName.equals(system)) {
-            /*findAndHookMethod("com.android.internal.widget.ConversationLayout",
+            findAndHookMethod("com.android.internal.widget.ConversationLayout",
                     loadPackageParam.classLoader,
                     "onFinishInflate",
                     new XC_MethodHook() {
@@ -188,7 +175,7 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
                         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                             Thread.dumpStack();
                         }
-                    });*/
+                    });
         }
     }
 }
