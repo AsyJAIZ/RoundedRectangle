@@ -1,18 +1,26 @@
 package com.aj.roundrectoverlay;
 
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
+import static de.robv.android.xposed.XposedHelpers.findClass;
+import static de.robv.android.xposed.XposedHelpers.getObjectField;
 
+import android.annotation.SuppressLint;
+import android.app.Notification;
 import android.content.res.XModuleResources;
 import android.content.res.XResources;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.RemoteViews;
+
+import com.asyjaiz.roundrectoverlay.R;
 
 import de.robv.android.xposed.IXposedHookInitPackageResources;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
+import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.callbacks.XC_InitPackageResources;
 import de.robv.android.xposed.callbacks.XC_LayoutInflated;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
@@ -23,10 +31,12 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
     String system = "android";
     String ui = "com.android.systemui";
     String resources;
+    int action0;
     @Override
     public void handleInitPackageResources(XC_InitPackageResources.InitPackageResourcesParam resParam) throws Throwable {
         XModuleResources res = XModuleResources.createInstance(resources, null);
         if (resParam.packageName.equals(system)) {
+            // Framework properties
             XResources.setSystemWideReplacement(system, "bool", "config_useRoundIcon", false);
             XResources.setSystemWideReplacement(system, "dimen", "config_bottomDialogCornerRadius",
                     res.fwd(R.dimen.bottomDialogCornerRadius));
@@ -37,15 +47,17 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
 
             if (material1) {
                 // TODO: change text size
+                // Notification size
                 XResources.setSystemWideReplacement(system, "dimen", "notification_headerless_min_height",
                         res.fwd(R.dimen.notification_headerless_min_height));
                 XResources.setSystemWideReplacement(system, "dimen", "notification_header_height",
                         res.fwd(R.dimen.notification_headerless_min_height));
 
-                // alternate_expand_target
+                // Move actual content further from icon, used by alternate_expand_target
                 XResources.setSystemWideReplacement(system, "dimen", "notification_content_margin_start",
                         res.fwd(R.dimen.notification_headerless_min_height));
 
+                // Notification icon
                 // TODO: right icon, conversation icon
                 XResources.setSystemWideReplacement(system, "dimen", "notification_icon_circle_start",
                         res.fwd(R.dimen.notification_icon_circle_start));
@@ -53,22 +65,32 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
                         res.fwd(R.dimen.notification_icon_circle_padding));
                 XResources.setSystemWideReplacement(system, "dimen", "notification_icon_circle_size",
                         res.fwd(R.dimen.notification_icon_circle_size));
-
                 if (!authentic)
                     XResources.setSystemWideReplacement(system, "drawable", "notification_icon_circle",
                         res.fwd(R.drawable.notification_icon_circle_m));
 
+                // Notification actions
                 // TODO: action icons, dividers, info
+                action0 = XResources.getSystem().getIdentifier("action0", "id", system);
+                XposedBridge.log(action0 + " id");
+                /*XResources.hookSystemWideLayout(system, "layout", "notification_material_action", new XC_LayoutInflated() {
+                    @Override
+                    public void handleLayoutInflated(LayoutInflatedParam layoutInflatedParam) throws Throwable {
+                        layoutInflatedParam.res.getIdentifier("action0", "id", system) + "id");
+                    }
+                });*/
                 XResources.setSystemWideReplacement(system, "dimen", "notification_actions_padding_start",
                         res.fwd(R.dimen.notification_actions_padding_start));
             } else {
                 if (!authentic) {
+                    // App icon besides conversation avatar
                     XResources.setSystemWideReplacement(system, "drawable", "conversation_badge_background",
                             res.fwd(R.drawable.conversation_badge_background));
                     XResources.setSystemWideReplacement(system, "drawable", "conversation_badge_ring",
                             res.fwd(R.drawable.conversation_badge_ring));
                 }
 
+                // Make notification icon a rectangle too
                 XResources.setSystemWideReplacement(system, "drawable", "notification_icon_circle",
                         res.fwd(R.drawable.notification_icon_circle));
             }
@@ -78,9 +100,9 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
 
             // Brightness slider
             resParam.res.setReplacement(ui, "dimen", "rounded_slider_corner_radius",
-                    res.fwd(R.dimen.bottomDialogCornerRadius));
+                    res.fwd(R.dimen.qs_corner_radius)); // Near QS tiles. Use QS value
             resParam.res.setReplacement(ui, "dimen", "rounded_slider_track_inset",
-                    res.fwd(R.dimen.dialogCornerRadius));
+                    res.fwd(R.dimen.bottomDialogCornerRadius));
             resParam.res.setReplacement(ui, "dimen", "rounded_slider_background_rounded_corner",
                     res.fwd(R.dimen.rounded_slider_background_rounded_corner));
 
@@ -90,16 +112,17 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
             resParam.res.setReplacement(ui, "dimen", "qs_media_album_radius",
                     res.fwd(R.dimen.bottomDialogCornerRadius));
 
-            // Notifications
+            // Notification shade
             resParam.res.setReplacement(ui, "dimen", "notification_corner_radius",
                     res.fwd(R.dimen.bottomDialogCornerRadius));
             resParam.res.setReplacement(ui, "dimen", "notification_corner_radius_small",
                     res.fwd(R.dimen.dialogCornerRadius));
             resParam.res.setReplacement(ui, "dimen", "notification_scrim_corner_radius",
                     new XResources.DimensionReplacement((32.0f/28.0f)*4.0f, TypedValue.COMPLEX_UNIT_DIP));
-            if (material1)
+            if (material1) // Stacked notification has top margin too
                 resParam.res.setReplacement(ui, "dimen", "notification_children_container_margin_top",
                         res.fwd(R.dimen.notification_children_container_margin_top));
+            // Clear all button
             resParam.res.setReplacement(ui, "drawable", "notif_footer_btn_background",
                     res.fwd(R.drawable.notif_footer_btn_background));
 
@@ -117,9 +140,9 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
 
         } else if ((resParam.packageName.equals("com.android.launcher3")) ||
                 (resParam.packageName.equals("com.google.android.apps.nexuslauncher"))) {
+            // Recents menu screenshot rounding
             resParam.res.setReplacement(resParam.packageName, "dimen", "default_dialog_corner_radius",
                     res.fwd(R.dimen.bottomDialogCornerRadius));
-
             resParam.res.setReplacement(resParam.packageName, "dimen", "task_corner_radius_override",
                     res.fwd(R.dimen.dialogCornerRadius));
         }
@@ -135,7 +158,15 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
         if (loadPackageParam.packageName.equals(setLib) || loadPackageParam.packageName.equals(ui)) {
-            /*findAndHookMethod(setLib + ".notification.ConversationIconFactory.ConversationIconDrawable",
+            /*findAndHookMethod("com.android.keyguard.NumPadAnimator", loadPackageParam.classLoader,
+                    "onLayout", int.class, new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            XposedBridge.log(param.args[0] + " px");
+                            super.afterHookedMethod(param);
+                        }
+                    });
+            findAndHookMethod(setLib + ".notification.ConversationIconFactory.ConversationIconDrawable",
                     loadPackageParam.classLoader,
                     "draw",
                     Canvas.class, new XC_MethodHook() {
@@ -176,6 +207,24 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
                             Thread.dumpStack();
                         }
                     });
+            if (action0 != 0) {
+                XposedBridge.log(action0 + " action button id");
+                findAndHookMethod("android.app.Notification.Builder",
+                        loadPackageParam.classLoader,
+                        "generateActionButton",
+                        Notification.Action.class,
+                        boolean.class,
+                        findClass("android.app.Notification.StandardTemplateParams", loadPackageParam.classLoader),
+                        new XC_MethodHook() {
+                            @SuppressLint("ResourceType")
+                            @Override
+                            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                                super.afterHookedMethod(param);
+                                RemoteViews button = (RemoteViews) getObjectField(param.thisObject, "button");
+                                button.setImageViewIcon(action0, ((Notification.Action) param.args[0]).getIcon());
+                            }
+                        });
+            }
         }
     }
 }

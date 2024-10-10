@@ -5,8 +5,9 @@
     <!-- Android 11 uses a mask for QS tiles, Android 12+ doesn't -->
     <dimen name="qs_corner_radius">6dp</dimen>
 
-    <!-- See SystemUI dimens documentation for slider values -->
-    <dimen name="rounded_slider_background_rounded_corner">10dp</dimen>
+    <!-- See SystemUI dimens documentation for slider values.
+     rounded_slider_corner_radius + rounded_slider_background_padding (8dp) -->
+    <dimen name="rounded_slider_background_rounded_corner">14dp</dimen>
 
     <!-- notification_large_icon_width (64dp) - @id/icon margin l+r (24dp) -->
     <dimen name="notification_icon_circle_size">40dp</dimen>
