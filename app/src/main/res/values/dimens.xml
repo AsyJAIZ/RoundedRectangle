@@ -13,14 +13,28 @@
     <dimen name="notification_icon_circle_size">40dp</dimen>
     <!-- notification_large_icon_height (64dp) -->
     <dimen name="notification_headerless_min_height">64dp</dimen>
+
+    <!-- Vertical margin for the headerless notification content, when content has 1 line -->
+    <!-- 20 * 2 (margins) + 24 (1 line) = 64 (notification) -->
+    <dimen name="notification_headerless_margin_oneline">20dp</dimen>
+
+    <!-- Vertical margin for the headerless notification content, when content has 2 lines -->
+    <!-- 8 * 2 (margins) + 24 * 2 (2 lines) = 64 (notification) -->
+    <dimen name="notification_headerless_margin_twoline">8dp</dimen>
+
     <!-- @id/icon margin (12dp) -->
     <dimen name="notification_icon_circle_start">12dp</dimen>
     <!-- notification_large_icon_circle_padding -->
     <dimen name="notification_icon_circle_padding">11dp</dimen>
+
+    <!-- notification_header_height - (icon_size / 4) -->
+    <dimen name="notification_content_margin_top">54dp</dimen>
 
     <!-- notification_large_icon (64dp) - (notification_headerless_min_height (56dp) - notification_children_container_margin_top (48dp)) -->
     <dimen name="notification_children_container_margin_top">56dp</dimen>
 
     <!-- notification_large_icon (64dp) - notification_material_action margin (4dp * 4) -->
     <dimen name="notification_actions_padding_start">48dp</dimen>
+
+    <dimen name="notification_title_text_size">50sp</dimen>
 </resources>

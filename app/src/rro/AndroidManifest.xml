@@ -1,0 +1,9 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application android:hasCode="false">
+
+    </application>
+    <overlay android:targetPackage="android"
+        android:isStatic="false" android:resourcesMap="@xml/overlays" />
+
+</manifest>
