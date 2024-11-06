@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<overlay xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--item target="bool/config_useRoundIcon" value="false" />
+    <item target="dimen/config_bottomDialogCornerRadius" value="@dimen/bottomDialogCornerRadius" />
+    <item target="dimen/config_dialogCornerRadius" value="@dimen/dialogCornerRadius" />
+    <item target="string/config_icon_mask" value="@string/config_icon_mask" /-->
+
+    <item target="dimen/notification_header_height" value="@dimen/notification_headerless_min_height" />
+    <item target="dimen/notification_headerless_min_height" value="@dimen/notification_headerless_min_height" />
+    <item target="dimen/notification_headerless_margin_oneline" value="@dimen/notification_headerless_margin_oneline" />
+    <item target="dimen/notification_headerless_margin_twoline" value="@dimen/notification_headerless_margin_twoline" />
+    <item target="dimen/notification_right_icon_headerless_margin" value="@dimen/notification_headerless_margin_twoline" />
+
+    <item target="dimen/notification_title_text_size" value="@dimen/notification_title_text_size" />
+
+    <item target="dimen/notification_content_margin_start" value="@dimen/notification_headerless_min_height" />
+    <item target="dimen/notification_content_margin_top" value="@dimen/notification_content_margin_top" />
+
+    <item target="dimen/notification_icon_circle_start" value="@dimen/notification_icon_circle_start" />
+    <item target="dimen/notification_icon_circle_padding" value="@dimen/notification_icon_circle_padding" />
+    <item target="dimen/notification_icon_circle_size" value="@dimen/notification_icon_circle_size" />
+
+    <item target="dimen/notification_actions_padding_start" value="@dimen/notification_actions_padding_start" />
+</overlay>
