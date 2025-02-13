@@ -185,11 +185,11 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
 
     String setLib = "com.android.settingslib";
 
-    @Override
+    /*@Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
 
         if (loadPackageParam.packageName.equals(setLib) || loadPackageParam.packageName.equals(ui)) {
-            /*Class<?> topLine = findClass(system + ".view.NotificationTopLineView",
+            Class<?> topLine = findClass(system + ".view.NotificationTopLineView",
                     loadPackageParam.classLoader);
             findAndHookConstructor(topLine,
                     Context.class, AttributeSet.class, int.class, int.class, new XC_MethodHook() {
@@ -279,7 +279,7 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
                                 button.setImageViewIcon(action0, ((Notification.Action) param.args[0]).getIcon());
                             }
                         });
-            }*/
-        }
+            }
+        }*/
     }
 }
