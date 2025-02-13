@@ -34,7 +34,7 @@ import de.robv.android.xposed.callbacks.XC_InitPackageResources;
 import de.robv.android.xposed.callbacks.XC_LayoutInflated;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
-public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteInit, IXposedHookLoadPackage {
+public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteInit {
     Boolean authentic = true;
     Boolean material1 = true;
     String system = "android";
