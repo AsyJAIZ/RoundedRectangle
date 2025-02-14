@@ -139,8 +139,8 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
             // QQS and Media controls
             resParam.res.setReplacement(ui, "dimen", "qs_corner_radius",
                     res.fwd(R.dimen.qs_corner_radius));
-            resParam.res.setReplacement(ui, "dimen", "qs_media_album_radius",
-                    res.fwd(R.dimen.bottomDialogCornerRadius));
+            try { resParam.res.setReplacement(ui, "dimen", "qs_media_album_radius",
+                    res.fwd(R.dimen.bottomDialogCornerRadius)); } catch (Exception as e) { XposedBridge.log("QS Media corner radius wasn't found. Skip"); }
 
             // Notification shade
             resParam.res.setReplacement(ui, "dimen", "notification_corner_radius",
