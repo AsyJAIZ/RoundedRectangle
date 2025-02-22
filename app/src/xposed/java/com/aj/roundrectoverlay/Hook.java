@@ -34,9 +34,9 @@ import de.robv.android.xposed.callbacks.XC_InitPackageResources;
 import de.robv.android.xposed.callbacks.XC_LayoutInflated;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
-public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteInit {
+public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteInit, IXposedHookLoadPackage {
     Boolean authentic = true;
-    Boolean material1 = true;
+    Boolean material1 = false;
     String system = "android";
     String ui = "com.android.systemui";
     String resources;
@@ -44,7 +44,7 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
     @Override
     public void handleInitPackageResources(XC_InitPackageResources.InitPackageResourcesParam resParam) throws Throwable {
         XModuleResources res = XModuleResources.createInstance(resources, null);
-        if (resParam.packageName.equals(system)) {
+        if (!resParam.packageName.equals(ui)) {
             // Framework properties
             XResources.setSystemWideReplacement(system, "bool", "config_useRoundIcon", false);
             XResources.setSystemWideReplacement(system, "dimen", "config_bottomDialogCornerRadius",
@@ -124,7 +124,18 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
                 XResources.setSystemWideReplacement(system, "drawable", "notification_icon_circle",
                         res.fwd(R.drawable.notification_icon_circle));
             }
-        } else if (resParam.packageName.equals(ui)) {
+            XResources.setSystemWideReplacement(system, "drawable", "toast_frame",
+                    res.fwd(R.drawable.toast_frame));
+        } else if ((resParam.packageName.equals("com.android.launcher3")) ||
+                (resParam.packageName.equals("com.google.android.apps.nexuslauncher"))) {
+            // Recents menu screenshot rounding + clear all button
+            resParam.res.setReplacement(resParam.packageName, "dimen", "default_dialog_corner_radius",
+                    res.fwd(R.dimen.bottomDialogCornerRadius));
+            resParam.res.setReplacement(resParam.packageName, "dimen", "task_corner_radius_override",
+                    res.fwd(R.dimen.dialogCornerRadius));
+            resParam.res.setReplacement(resParam.packageName, "dimen", "recents_clear_all_outline_radius",
+                    res.fwd(R.dimen.bottomDialogCornerRadius));
+        } else {
             resParam.res.setReplacement(ui, "dimen", "global_actions_corner_radius",
                     res.fwd(R.dimen.bottomDialogCornerRadius));
 
@@ -139,11 +150,10 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
             // QQS and Media controls
             resParam.res.setReplacement(ui, "dimen", "qs_corner_radius",
                     res.fwd(R.dimen.qs_corner_radius));
-            try { 
+            try {
                 resParam.res.setReplacement(ui, "dimen", "qs_media_album_radius",
-                    res.fwd(R.dimen.bottomDialogCornerRadius)); 
-            } catch (Exception e) { 
-                XposedBridge.log("QS Media corner radius wasn't found. Skip"); 
+                    res.fwd(R.dimen.bottomDialogCornerRadius)); } catch (Exception e) {
+                XposedBridge.log("QS Media album radius parameter was skipped");
             }
 
             // Notification shade
@@ -170,15 +180,8 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
 
             // Keyguard
             resParam.res.setReplacement(ui, "dimen", "keyguard_affordance_fixed_radius",
-                    res.fwd(R.dimen.bottomDialogCornerRadius));
+                    res.fwd(R.dimen.qs_corner_radius)); // More fluent
 
-        } else if ((resParam.packageName.equals("com.android.launcher3")) ||
-                (resParam.packageName.equals("com.google.android.apps.nexuslauncher"))) {
-            // Recents menu screenshot rounding
-            resParam.res.setReplacement(resParam.packageName, "dimen", "default_dialog_corner_radius",
-                    res.fwd(R.dimen.bottomDialogCornerRadius));
-            resParam.res.setReplacement(resParam.packageName, "dimen", "task_corner_radius_override",
-                    res.fwd(R.dimen.dialogCornerRadius));
         }
     }
 
@@ -189,11 +192,11 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
 
     String setLib = "com.android.settingslib";
 
-    /*@Override
+    @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
 
         if (loadPackageParam.packageName.equals(setLib) || loadPackageParam.packageName.equals(ui)) {
-            Class<?> topLine = findClass(system + ".view.NotificationTopLineView",
+            /*Class<?> topLine = findClass(system + ".view.NotificationTopLineView",
                     loadPackageParam.classLoader);
             findAndHookConstructor(topLine,
                     Context.class, AttributeSet.class, int.class, int.class, new XC_MethodHook() {
@@ -283,7 +286,7 @@ public class Hook implements IXposedHookInitPackageResources, IXposedHookZygoteI
                                 button.setImageViewIcon(action0, ((Notification.Action) param.args[0]).getIcon());
                             }
                         });
-            }
+            }*/
         }
-    }*/
+    }
 }
